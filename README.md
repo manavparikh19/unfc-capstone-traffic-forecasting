@@ -9,7 +9,6 @@
 - Rudra Patel
 - Arpit Desai
 
----
 
 ## Project Overview
 
@@ -17,7 +16,6 @@ This capstone project focuses on the development of a data-driven traffic analyt
 
 The project is designed as an applied analytics and decision-support system, with practical relevance for commuters, delivery service operators, and urban transportation planners.
 
----
 
 ## Problem Definition
 
@@ -25,7 +23,6 @@ Traffic congestion is treated as a **continuous quantitative phenomenon**, rathe
 
 The primary analytical task is formulated as a **short-term forecasting problem (regression / time-series forecasting)**. Secondary analysis may involve categorizing congestion levels (e.g., low, medium, high) for interpretability and decision support.
 
----
 
 ## Objectives
 
@@ -35,7 +32,6 @@ The primary analytical task is formulated as a **short-term forecasting problem 
 - Perform scenario-based operational optimization to assess congestion reduction strategies
 - Deliver actionable insights through analytical dashboards and visualizations
 
----
 
 ## Data Sources
 
@@ -45,7 +41,6 @@ The primary analytical task is formulated as a **short-term forecasting problem 
 
 All data sources are publicly accessible or commercially documented and are used strictly for academic research purposes.
 
----
 
 ## Methodology Overview
 
@@ -72,7 +67,6 @@ All data sources are publicly accessible or commercially documented and are used
    - Scenario-based analysis (peak/off-peak, weather conditions)
    - Evaluation of congestion reduction strategies using predicted outputs
 
----
 
 ## Repository Structure
 
@@ -110,7 +104,6 @@ This structure supports reproducible research, modular development, and iterativ
 Note: The `api` and `web` components are optional extensions intended for model serving
 and interactive dashboards if time and scope permit.
 
----
 
 ## Project Management
 
@@ -120,7 +113,6 @@ This project follows an **agile development approach**:
 - Development is organized into iterative sprints
 - Progress and decisions are documented in the `/docs` directory
 
----
 
 ## Current Status
 
@@ -129,13 +121,11 @@ This project follows an **agile development approach**:
 - Data source identification completed
 - Modeling and data ingestion in progress
 
----
 
 ## Academic Context
 
 This project is conducted as part of the **Capstone Project requirement** for the Master of Data Analytics program at the University of Niagara Falls. All analyses adhere to academic integrity guidelines and ethical data usage standards.
 
----
 
 ## Supervisor
 
