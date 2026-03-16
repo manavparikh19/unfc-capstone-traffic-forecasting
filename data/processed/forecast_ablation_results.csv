@@ -1,0 +1,5 @@
+model_name,feature_set,RMSE,MAE
+Random Forest,Feature Set D: Full Feature Set,56.6843506647893,37.46914688267301
+Random Forest,Feature Set B: Temporal + Lag,95.86791218320828,59.68006938262298
+Random Forest,Feature Set C: Temporal + Lag + Rolling,98.40576861529763,53.299828477676726
+Random Forest,Feature Set A: Temporal Only,177.69761317815656,115.3413301951799
