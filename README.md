@@ -132,7 +132,9 @@ unfc-capstone-traffic-forecasting/
 │   ├── 02_dataset_validation.ipynb
 │   ├── 03_eda_traffic_data.ipynb
 │   ├── 04_feature_engineering.ipynb
-│   └── 05_signal_performance_metrics.ipynb
+│   ├── 05_signal_performance_metrics.ipynb
+│   ├── 06_baseline_signal_timing.ipynb
+│   └── 07_traffic_demand_forecasting.ipynb
 ├── docs/
 │   └── dashboard-requirements.md
 ├── src/
@@ -152,7 +154,7 @@ To reproduce the current notebook pipeline:
 
 1. Place the raw traffic files in `data/raw/traffic/`.
 2. Place the signal files in `data/raw/signals/`.
-3. Run the main notebooks in the documented order, ending with `05_signal_performance_metrics.ipynb`.
+3. Run the main notebooks in the documented order through `07_traffic_demand_forecasting.ipynb`.
 4. Review the processed outputs generated along the way.
 5. Consult `docs/dashboard-requirements.md` for the current reporting specification.
 
@@ -163,8 +165,13 @@ Key processed outputs:
 - `data/processed/traffic_flow_metrics_2015_2019.csv`
 - `data/processed/signal_optimization_features_2015_2019.csv`
 - `data/processed/signal_performance_metrics_2015_2019.csv`
+- `data/processed/traffic_demand_forecasts.csv`
+- `data/processed/forecast_model_results.csv`
+- `data/processed/forecast_ablation_results.csv`
 
 The project is designed so that the processed datasets are generated incrementally by the notebooks rather than being treated as manual prerequisites.
+
+Note: the forecasting notebook `notebooks/07_traffic_demand_forecasting.ipynb` uses TensorFlow/Keras for the LSTM, GRU, and TCN models. In this repository, that notebook is configured to run in the dedicated Python `3.11` environment and Jupyter kernel `.venv311` / `unfc-tf311`, because TensorFlow support is not available in the main Python `3.14` environment.
 
 
 ## Project Management
