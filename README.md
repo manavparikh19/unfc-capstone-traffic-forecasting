@@ -44,6 +44,8 @@ Intersection Simulation
 ↓  
 Operational Performance Evaluation  
 ↓  
+Signal Timing Impact Evaluation  
+↓  
 Dashboard Reporting
 
 ---
@@ -108,6 +110,7 @@ Main pipeline:
 9. notebooks/09_external_factors_integration.ipynb  
 10. notebooks/10_traffic_flow_optimization_formulation.ipynb  
 11. notebooks/11_intersection_traffic_flow_simulation.ipynb  
+12. notebooks/12_signal_timing_impact_evaluation.ipynb  
 
 Optional validation notebook:
 
@@ -270,6 +273,45 @@ Optimization improves performance **by redistributing capacity between phases**,
 Notebook:
 
 notebooks/11_intersection_traffic_flow_simulation.ipynb
+
+---
+
+# Signal Timing Impact Evaluation
+
+This final evaluation notebook translates the simulation outputs from notebook 11 into before-versus-after operational impact measures for the baseline and optimized timing strategies.
+
+The analysis focuses on:
+
+- delay reduction across simulated demand scenarios
+- throughput gains under constrained demand conditions
+- queue pressure and queue ratio reduction
+- demand served per cycle under baseline vs optimized timing
+
+Saved evaluation outputs include:
+
+- `data/processed/signal_timing_impact_summary.csv`
+- `data/processed/signal_timing_headline_metrics.csv`
+- `data/processed/signal_timing_congestion_level_summary.csv`
+- `data/processed/location_signal_timing_improvement.csv`
+
+Headline average results across scenarios:
+
+| Metric | Baseline | Optimized | Change |
+|------|------|------|------|
+| Delay | 22.52 sec/veh | 17.40 sec/veh | 18.07% reduction |
+| Throughput | 1226.67 veh/hr | 1293.33 veh/hr | 4.17% increase |
+| Queue Pressure | 73.33 veh/hr | 6.67 veh/hr | 90.91% reduction |
+| Demand Served per Cycle | 30.67 veh/cycle | 32.33 veh/cycle | 4.17% increase |
+
+Key interpretation:
+
+- optimization produces the largest benefit under peak and congested conditions
+- low-demand scenarios show smaller gains because the intersection is already operating below capacity
+- performance improves by redistributing fixed green time more effectively, not by increasing total capacity
+
+Notebook:
+
+notebooks/12_signal_timing_impact_evaluation.ipynb
 
 ---
 
