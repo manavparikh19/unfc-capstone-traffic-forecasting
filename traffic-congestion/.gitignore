@@ -1,0 +1,20 @@
+# dependencies
+node_modules
+
+# next
+.next
+out
+
+# tests
+coverage
+playwright-report
+test-results
+
+# env
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# system
+.DS_Store
