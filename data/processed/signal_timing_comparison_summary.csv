@@ -1,7 +1,7 @@
 Metric,Baseline,Optimized,Improvement
-Average delay (sec/veh),26.609,26.313,0.296
-Average throughput,379.034,387.916,8.882
-Average queue pressure,17.931,9.049,8.882
-Peak-period delay (sec/veh),29.966,29.303,0.663
-Peak-period throughput,553.204,573.089,19.885
-Peak-period queue pressure,40.063,20.178,19.885
+Average delay (sec/veh),27.912,26.641,1.271
+Average throughput,434.506,472.64,38.134
+Average queue pressure,81.621,43.487,38.134
+Peak-period delay (sec/veh),30.986,28.57,2.416
+Peak-period throughput,585.476,657.952,72.477
+Peak-period queue pressure,158.973,86.497,72.477
