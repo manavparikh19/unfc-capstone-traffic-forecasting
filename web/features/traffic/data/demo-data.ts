@@ -14,6 +14,7 @@ export type DashboardAreaMetrics = {
   travelTimeReliability: number;
   incidentRisk: number;
   dailyTrips: number;
+  observationCount?: number;
   classification: "Low" | "Moderate" | "Elevated" | "Severe";
   demandCurve: TrendPoint[];
   peakWindow: string;
@@ -66,7 +67,7 @@ export type RouteBlueprint = {
 
 export type ForecastDataPoint = {
   hour: string;
-  actual: number;
+  actual: number | null;
   predicted: number;
   lower: number;
   upper: number;
@@ -291,45 +292,45 @@ export const corridorForecast = [
 
 export const forecastModels: ForecastModel[] = [
   {
-    name: "XGBoost",
-    mae: 12.4,
-    rmse: 16.8,
+    name: "Random Forest",
+    mae: 83.854,
+    rmse: 135.343,
     mape: 6.1,
     r2: 0.924,
-    stability: 92,
+    stability: 93,
     tag: "best",
     summary:
-      "Best overall accuracy across all intersections. Strong performance on peak-hour volume spikes and holiday patterns.",
+      "Best-performing model in the notebook benchmark export.",
   },
   {
-    name: "Random Forest",
-    mae: 14.2,
-    rmse: 19.1,
-    mape: 7.2,
-    r2: 0.908,
+    name: "XGBoost",
+    mae: 85.812,
+    rmse: 141.257,
+    mape: 6.4,
+    r2: 0.918,
+    stability: 90,
+    summary:
+      "Strong peak-hour performance with robust nonlinear feature handling.",
+  },
+  {
+    name: "TFT (Proxy structure)",
+    mae: 86.015,
+    rmse: 142.074,
+    mape: 6.6,
+    r2: 0.912,
     stability: 88,
     summary:
-      "Robust short-horizon performance with interpretable feature splits. Good for planner-facing explanations.",
+      "Transformer proxy benchmark for temporal sequence modeling.",
   },
   {
-    name: "LSTM",
-    mae: 15.8,
-    rmse: 21.3,
-    mape: 8.4,
-    r2: 0.891,
-    stability: 81,
+    name: "Naive Baseline (Lag 1)",
+    mae: 170.873,
+    rmse: 253.422,
+    mape: 12.8,
+    r2: 0.71,
+    stability: 62,
     summary:
-      "Captures long-range temporal dependencies. Requires more training data but improves with larger datasets.",
-  },
-  {
-    name: "GRU",
-    mae: 16.1,
-    rmse: 21.9,
-    mape: 8.9,
-    r2: 0.885,
-    stability: 79,
-    summary:
-      "Lighter alternative to LSTM. Faster training convergence but slightly less accurate on complex seasonal patterns.",
+      "Reference baseline model included for comparative benchmarking.",
   },
 ];
 

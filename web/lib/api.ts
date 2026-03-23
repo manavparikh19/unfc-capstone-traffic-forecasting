@@ -25,19 +25,38 @@ import {
   type MonthlyTrend,
   type ScenarioResult,
 } from "@/features/traffic/data/demo-data";
-import type { CityArea } from "@/lib/site-config";
 
-const USE_MOCK = true;
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+const ALLOW_FALLBACK_ON_ERROR =
+  process.env.NEXT_PUBLIC_ALLOW_FALLBACK_ON_ERROR === "true";
 
-async function fetchApi<T>(endpoint: string, fallback: T): Promise<T> {
+async function fetchApi<T>(
+  endpoint: string,
+  fallback: T,
+  options?: { allowFallback?: boolean },
+): Promise<T> {
   if (USE_MOCK) return fallback;
 
   try {
-    const res = await fetch(`/api${endpoint}`);
-    if (!res.ok) throw new Error(`API ${res.status}`);
+    const res = await fetch(`/api${endpoint}`, { cache: "no-store" });
+    if (!res.ok) {
+      let message = `API ${res.status}`;
+      try {
+        const payload = (await res.json()) as { message?: string };
+        if (payload?.message) {
+          message = payload.message;
+        }
+      } catch {
+        // Keep default message when response is not JSON.
+      }
+      throw new Error(message);
+    }
     return (await res.json()) as T;
-  } catch {
-    return fallback;
+  } catch (error) {
+    if (options?.allowFallback ?? ALLOW_FALLBACK_ON_ERROR) {
+      return fallback;
+    }
+    throw error;
   }
 }
 
@@ -55,9 +74,17 @@ export type DashboardSummary = {
   topHotspots: Hotspot[];
   recentScenarios: ScenarioResult[];
   actualVsPredicted: { hour: string; actual: number; predicted: number }[];
+  networkObservationCount?: number;
+  hotspotObservationCount?: number;
+  locationOptions?: Array<{ locationId: string; label: string }>;
+  selectedLocationId?: string;
+  generatedAt?: string;
 };
 
-export async function getDashboardSummary(): Promise<DashboardSummary> {
+export async function getDashboardSummary(query?: {
+  locationId?: string;
+  peakWindow?: "all" | "am" | "pm" | "offpeak";
+}): Promise<DashboardSummary> {
   const areas = dashboardMetrics;
   const avgCI = Math.round(
     areas.reduce((s, a) => s + a.congestionIndex, 0) / areas.length,
@@ -67,7 +94,17 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
   );
   const totalTrips = areas.reduce((s, a) => s + a.dailyTrips, 0);
 
-  return fetchApi<DashboardSummary>("/dashboard-summary", {
+  const search = new URLSearchParams();
+  if (query?.locationId) {
+    search.set("locationId", query.locationId);
+  }
+  if (query?.peakWindow) {
+    search.set("peakWindow", query.peakWindow);
+  }
+  const endpoint =
+    search.size > 0 ? `/dashboard-summary?${search.toString()}` : "/dashboard-summary";
+
+  return fetchApi<DashboardSummary>(endpoint, {
     avgCongestionIndex: avgCI,
     avgReliability: avgRel,
     totalTrips,
@@ -79,7 +116,11 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     topHotspots: hotspots.slice(0, 5),
     recentScenarios: scenarioHistory,
     actualVsPredicted,
-  });
+    networkObservationCount: 0,
+    hotspotObservationCount: 0,
+    locationOptions: [],
+    selectedLocationId: query?.locationId ?? "ALL",
+  }, { allowFallback: false });
 }
 
 // ─── Forecasting ─────────────────────────────────────────────────
@@ -87,15 +128,50 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 export type ForecastResponse = {
   models: ForecastModel[];
   bestModel: ForecastModel;
+  selectedModel?: ForecastModel;
   hourlyData: ForecastDataPoint[];
   featureImportance: FeatureImportance[];
   modelComparison: typeof modelComparisonMonthly;
   weeklyTrend: TrendPoint[];
+  meta?: {
+    model_name?: string;
+    location_id?: string;
+    horizon_hours?: number;
+    start_timestamp?: string;
+    trained_rows?: number;
+    actual_coverage?: number;
+  };
 };
 
-export async function getForecastData(): Promise<ForecastResponse> {
+export type ForecastLocationOption = {
+  locationId: string;
+  label: string;
+};
+
+type ForecastQuery = {
+  intersection?: string;
+  horizonHours?: number;
+  locationId?: string;
+  modelName?: string;
+  startTimestamp?: string;
+};
+
+export async function getForecastData(
+  query?: ForecastQuery,
+): Promise<ForecastResponse> {
   const ranked = [...forecastModels].sort((a, b) => a.mae - b.mae);
-  return fetchApi<ForecastResponse>("/forecast", {
+  const search = new URLSearchParams();
+  if (query?.intersection) search.set("intersection", query.intersection);
+  if (query?.locationId) search.set("locationId", query.locationId);
+  if (query?.modelName) search.set("modelName", query.modelName);
+  if (query?.startTimestamp) search.set("startTimestamp", query.startTimestamp);
+  if (query?.horizonHours) {
+    search.set("horizonHours", String(query.horizonHours));
+  }
+
+  const endpoint = search.size > 0 ? `/forecast?${search.toString()}` : "/forecast";
+
+  return fetchApi<ForecastResponse>(endpoint, {
     models: ranked,
     bestModel: ranked[0],
     hourlyData: hourlyForecastData,
@@ -103,6 +179,32 @@ export async function getForecastData(): Promise<ForecastResponse> {
     modelComparison: modelComparisonMonthly,
     weeklyTrend: corridorForecast,
   });
+}
+
+export async function getForecastLocations(): Promise<ForecastLocationOption[]> {
+  const fallback: ForecastLocationOption[] = [
+    { locationId: "10133019_NB", label: "King St x Spadina Ave" },
+    { locationId: "913150_WB", label: "Front St x Bay St" },
+    { locationId: "8417204_WB", label: "Eglinton Ave x Yonge" },
+    { locationId: "913167_EB", label: "University Ave x College" },
+  ];
+
+  if (USE_MOCK) return fallback;
+
+  try {
+    const res = await fetch("/api/forecast/locations");
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const payload = (await res.json()) as { locations?: ForecastLocationOption[] };
+    if (!payload.locations || payload.locations.length === 0) {
+      throw new Error("No locations returned.");
+    }
+    return payload.locations;
+  } catch (error) {
+    if (ALLOW_FALLBACK_ON_ERROR) {
+      return fallback;
+    }
+    throw error;
+  }
 }
 
 // ─── Signal Optimization ─────────────────────────────────────────
@@ -116,10 +218,25 @@ export type SignalOptResponse = {
   improvementRate: number;
   corridor: string;
   cycleLength: { baseline: number; optimized: number };
+  observationCount?: number;
+  locationOptions?: Array<{ locationId: string; label: string }>;
+  selectedLocationId?: string;
+  selectedPeakWindow?: "all" | "am" | "pm" | "offpeak";
 };
 
-export async function getSignalOptData(): Promise<SignalOptResponse> {
-  return fetchApi<SignalOptResponse>("/optimization-result", {
+export async function getSignalOptData(query?: {
+  locationId?: string;
+  peakWindow?: "all" | "am" | "pm" | "offpeak";
+}): Promise<SignalOptResponse> {
+  const search = new URLSearchParams();
+  if (query?.locationId) search.set("locationId", query.locationId);
+  if (query?.peakWindow) search.set("peakWindow", query.peakWindow);
+  const endpoint =
+    search.size > 0
+      ? `/optimization-result?${search.toString()}`
+      : "/optimization-result";
+
+  return fetchApi<SignalOptResponse>(endpoint, {
     metrics: signalMetrics,
     trend: signalTrend,
     timingPhases,
@@ -128,7 +245,11 @@ export async function getSignalOptData(): Promise<SignalOptResponse> {
     improvementRate: 37,
     corridor: "Downtown Core — King St x Spadina Ave",
     cycleLength: { baseline: 140, optimized: 120 },
-  });
+    observationCount: 0,
+    locationOptions: [],
+    selectedLocationId: query?.locationId ?? "ALL",
+    selectedPeakWindow: query?.peakWindow ?? "all",
+  }, { allowFallback: false });
 }
 
 // ─── Hotspots ────────────────────────────────────────────────────
@@ -179,9 +300,24 @@ export type ScenarioOutput = {
   };
 };
 
-export async function runScenario(
-  input: ScenarioInput,
-): Promise<ScenarioOutput> {
+export type ScenarioHistoryItem = {
+  id: string;
+  name: string;
+  timestamp: string;
+  avgDelay: number;
+  throughput: number;
+  congestionIndex: number;
+  travelTime: number;
+  recommendation: string;
+};
+
+export type ScenarioRunResponse = {
+  result: ScenarioOutput;
+  baseline: ScenarioOutput;
+  history: ScenarioHistoryItem[];
+};
+
+function simulateScenarioFallback(input: ScenarioInput): ScenarioOutput {
   const baseDelay = 118;
   const surgeMultiplier = 1 + input.trafficSurge / 100;
   const incidentPenalty = input.hasIncident ? 1.35 : 1;
@@ -244,6 +380,90 @@ export async function runScenario(
       congestionChange: congestion - 72,
     },
   };
+}
+
+export async function runScenarioWithBaseline(
+  input: ScenarioInput,
+): Promise<ScenarioRunResponse> {
+  if (USE_MOCK) {
+    const result = simulateScenarioFallback(input);
+    const baseline = simulateScenarioFallback({
+      trafficSurge: 0,
+      hasIncident: false,
+      weatherCondition: "clear",
+      timingStrategy: "fixed",
+      demandLevel: "normal",
+    });
+    return { result, baseline, history: scenarioHistory };
+  }
+  const res = await fetch("/api/scenario", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    let message = `API ${res.status}`;
+    try {
+      const payload = (await res.json()) as { message?: string };
+      if (payload?.message) message = payload.message;
+    } catch {
+      // ignore non-json failure response
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as ScenarioRunResponse;
+}
+
+export async function runScenario(
+  input: ScenarioInput,
+): Promise<ScenarioOutput> {
+  const payload = await runScenarioWithBaseline(input);
+  return payload.result;
+}
+
+export async function getScenarioHistory(): Promise<ScenarioHistoryItem[]> {
+  return fetchApi<{ history: ScenarioHistoryItem[] }>(
+    "/scenario",
+    { history: scenarioHistory },
+    { allowFallback: false },
+  ).then((payload) => payload.history);
+}
+
+// ─── Methodology ────────────────────────────────────────────────
+
+export type MethodologySummary = {
+  dataset: {
+    dataPoints: number;
+    intersections: number;
+    timeSpan: string;
+    resolution: string;
+  };
+  metrics: Array<{
+    metric: string;
+    value: string;
+    desc: string;
+  }>;
+  models: Array<{
+    name: string;
+    mae: number;
+    rmse: number;
+  }>;
+};
+
+export async function getMethodologySummary(): Promise<MethodologySummary> {
+  const res = await fetch("/api/methodology-summary", { cache: "no-store" });
+  if (!res.ok) {
+    let message = `API ${res.status}`;
+    try {
+      const payload = (await res.json()) as { message?: string };
+      if (payload?.message) message = payload.message;
+    } catch {
+      // keep default message
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as MethodologySummary;
 }
 
 // ─── Health / Metadata ───────────────────────────────────────────

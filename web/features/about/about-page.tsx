@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Database,
@@ -13,6 +14,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
+import { getMethodologySummary, type MethodologySummary } from "@/lib/api";
 
 const sg = { fontFamily: "var(--font-space-grotesk)" } as const;
 const mono = { fontFamily: "var(--font-roboto-mono)" } as const;
@@ -27,7 +29,7 @@ const fadeIn = {
   }),
 };
 
-const pipelineSteps = [
+const basePipelineSteps = [
   {
     icon: Database,
     title: "Data Collection",
@@ -72,10 +74,10 @@ const pipelineSteps = [
     icon: BarChart3,
     title: "Modeling Approach",
     details: [
-      "XGBoost (best): gradient-boosted trees with 200 estimators, max_depth=6, learning_rate=0.1",
-      "Random Forest: 150 trees, max_depth=8, as interpretability reference",
-      "LSTM: 2-layer, 64 hidden units, 24-step lookback, dropout=0.2",
-      "GRU: single-layer, 64 units, computationally lighter LSTM alternative",
+      "Top model rankings are loaded dynamically from benchmark export.",
+      "Model metrics are sourced from processed forecast_model_results.csv.",
+      "Evaluation cards below reflect live computed model/optimization metrics.",
+      "Fallback values are shown only when live services are unavailable.",
     ],
   },
   {
@@ -100,13 +102,20 @@ const pipelineSteps = [
   },
 ];
 
-const evaluationMetrics = [
+const placeholderEvaluationMetrics = [
   { metric: "MAE (Mean Absolute Error)", value: "12.4 veh/hr", desc: "Average magnitude of prediction errors in vehicle count" },
   { metric: "RMSE (Root Mean Squared Error)", value: "16.8 veh/hr", desc: "Penalizes large errors more heavily than MAE" },
   { metric: "MAPE (Mean Abs % Error)", value: "6.1%", desc: "Percentage-based error for interpretability" },
   { metric: "R² (Coefficient of Determination)", value: "0.924", desc: "Proportion of variance explained by the model" },
   { metric: "Delay Reduction", value: "37.3%", desc: "Average delay reduction from optimized vs fixed-time signals" },
   { metric: "Throughput Improvement", value: "16.4%", desc: "More vehicles served per hour under optimized timing" },
+].map((item) => ({ ...item, value: "-" }));
+
+const placeholderDatasetCards = [
+  { label: "Data Points", value: "-" },
+  { label: "Intersections", value: "-" },
+  { label: "Time Span", value: "-" },
+  { label: "Resolution", value: "-" },
 ];
 
 const limitations = [
@@ -127,6 +136,86 @@ const futureWork = [
 ];
 
 export function AboutPage() {
+  const [summary, setSummary] = useState<MethodologySummary | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const payload = await getMethodologySummary();
+        setSummary(payload);
+        setErrorMessage(null);
+      } catch {
+        setErrorMessage(
+          "Live methodology summary service is unavailable. Displaying fallback values.",
+        );
+      }
+    })();
+  }, []);
+
+  const datasetCards = summary
+    ? [
+        {
+          label: "Data Points",
+          value:
+            summary.dataset.dataPoints >= 1_000_000
+              ? `${(summary.dataset.dataPoints / 1_000_000).toFixed(2)}M`
+              : summary.dataset.dataPoints >= 1_000
+                ? `${(summary.dataset.dataPoints / 1_000).toFixed(1)}K`
+                : String(summary.dataset.dataPoints),
+        },
+        {
+          label: "Intersections",
+          value:
+            summary.dataset.intersections >= 1_000
+              ? `${(summary.dataset.intersections / 1_000).toFixed(2)}K`
+              : String(summary.dataset.intersections),
+        },
+        { label: "Time Span", value: summary.dataset.timeSpan },
+        { label: "Resolution", value: summary.dataset.resolution },
+      ]
+    : placeholderDatasetCards;
+
+  const evaluationMetrics = summary?.metrics?.length
+    ? summary.metrics
+    : placeholderEvaluationMetrics;
+
+  const pipelineSteps = useMemo(() => {
+    const rankedModels = summary?.models ?? [];
+    const modelStep = basePipelineSteps.find(
+      (step) => step.title === "Modeling Approach",
+    );
+    const otherSteps = basePipelineSteps.filter(
+      (step) => step.title !== "Modeling Approach",
+    );
+
+    if (!modelStep || rankedModels.length === 0) {
+      return basePipelineSteps;
+    }
+
+    const dynamicDetails = rankedModels.slice(0, 4).map((model, index) => {
+      const rankLabel = index === 0 ? "Best" : `Rank ${index + 1}`;
+      return `${rankLabel}: ${model.name} — MAE ${model.mae.toFixed(1)} veh/hr, RMSE ${model.rmse.toFixed(1)} veh/hr`;
+    });
+
+    const dynamicModelStep = {
+      ...modelStep,
+      details: [
+        ...dynamicDetails,
+        "Model ranking pulled from live benchmark export (forecast_model_results.csv).",
+      ],
+    };
+
+    const insertionIndex = basePipelineSteps.findIndex(
+      (step) => step.title === "Modeling Approach",
+    );
+    return [
+      ...otherSteps.slice(0, insertionIndex),
+      dynamicModelStep,
+      ...otherSteps.slice(insertionIndex),
+    ];
+  }, [summary]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -152,6 +241,17 @@ export function AboutPage() {
           </span>
         </div>
       </div>
+
+      {errorMessage && (
+        <div className="brutal-border bg-red-50 px-4 py-3 text-[10px] font-bold uppercase text-red-700" style={mono}>
+          {errorMessage}
+        </div>
+      )}
+      {!summary && !errorMessage && (
+        <div className="brutal-border bg-slate-50 px-4 py-3 text-[10px] font-bold uppercase text-slate-600" style={mono}>
+          Loading live methodology summary...
+        </div>
+      )}
 
       {/* ── Problem Definition ────────────────────────────────── */}
       <section className="brutal-border bg-white p-8">
@@ -194,12 +294,7 @@ export function AboutPage() {
           Dataset Description
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          {[
-            { label: "Data Points", value: "2.85M" },
-            { label: "Intersections", value: "1,240" },
-            { label: "Time Span", value: "12 months" },
-            { label: "Resolution", value: "15-min intervals" },
-          ].map((d) => (
+          {datasetCards.map((d) => (
             <div key={d.label} className="brutal-border p-4 text-center">
               <div className="text-2xl font-black tracking-tight" style={{ ...sg, color: accent }}>{d.value}</div>
               <div className="text-[9px] font-bold uppercase text-slate-500 mt-1" style={mono}>{d.label}</div>

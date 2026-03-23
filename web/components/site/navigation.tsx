@@ -13,7 +13,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/forecasting", label: "Forecasting" },
   { href: "/signal-optimization", label: "Signal Opt." },
-  { href: "/hotspots", label: "Hotspots" },
+  // { href: "/hotspots", label: "Hotspots" },
   { href: "/route-planner", label: "Scenarios" },
   { href: "/about", label: "Methodology" },
 ];

@@ -1,21 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  AlertTriangle,
   TrendingUp,
   TrendingDown,
   Minus,
-  ChevronRight,
   BarChart3,
   Signal,
   FlaskConical,
-  MapPin,
 } from "lucide-react";
 import { HotspotMap } from "@/components/visualization/hotspot-map";
-import { hotspots } from "@/features/traffic/data/demo-data";
+import { hotspots as demoHotspots } from "@/features/traffic/data/demo-data";
+import { getHotspotData } from "@/lib/api";
 
 const sg = { fontFamily: "var(--font-space-grotesk)" } as const;
 const mono = { fontFamily: "var(--font-roboto-mono)" } as const;
@@ -36,7 +34,33 @@ const trendColor = {
 };
 
 export function HotspotExplorerPage() {
+  const allowFallback =
+    process.env.NEXT_PUBLIC_ALLOW_FALLBACK_ON_ERROR === "true" ||
+    process.env.NODE_ENV !== "production";
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("All");
+  const [hotspotData, setHotspotData] = useState<{
+    hotspots: typeof demoHotspots;
+    criticalCount: number;
+    highCount: number;
+    avgSeverity: number;
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const payload = await getHotspotData();
+        setHotspotData(payload);
+        setErrorMessage(null);
+      } catch {
+        setErrorMessage(
+          "Live hotspot service is unavailable. Displaying degraded state.",
+        );
+      }
+    })();
+  }, []);
+
+  const hotspots = hotspotData?.hotspots ?? (allowFallback ? demoHotspots : []);
 
   const sorted = [...hotspots].sort((a, b) => b.congestionScore - a.congestionScore);
   const filtered =
@@ -44,13 +68,21 @@ export function HotspotExplorerPage() {
       ? sorted
       : sorted.filter((h) => h.severity === severityFilter);
 
-  const criticalCount = hotspots.filter((h) => h.severity === "Critical").length;
-  const highCount = hotspots.filter((h) => h.severity === "High").length;
-  const avgSeverity = +(
-    hotspots.reduce((s, h) => s + h.congestionScore, 0) / hotspots.length
-  ).toFixed(1);
+  const criticalCount =
+    hotspotData?.criticalCount ??
+    hotspots.filter((h) => h.severity === "Critical").length;
+  const highCount =
+    hotspotData?.highCount ??
+    hotspots.filter((h) => h.severity === "High").length;
+  const avgSeverity =
+    hotspotData?.avgSeverity ??
+    +(
+      hotspots.reduce((s, h) => s + h.congestionScore, 0) /
+      Math.max(hotspots.length, 1)
+    ).toFixed(1);
   const totalImprovementPotential = Math.round(
-    hotspots.reduce((s, h) => s + h.improvementPotential, 0) / hotspots.length,
+    hotspots.reduce((s, h) => s + h.improvementPotential, 0) /
+      Math.max(hotspots.length, 1),
   );
 
   return (
@@ -78,6 +110,12 @@ export function HotspotExplorerPage() {
           </span>
         </div>
       </div>
+
+      {errorMessage && (
+        <div className="brutal-border bg-red-50 px-4 py-3 text-[10px] font-bold uppercase text-red-700" style={mono}>
+          {errorMessage}
+        </div>
+      )}
 
       {/* ── KPIs ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -30,8 +30,13 @@ import {
   TrendingUp,
   Clock,
 } from "lucide-react";
-import { runScenario, type ScenarioInput, type ScenarioOutput } from "@/lib/api";
-import { scenarioHistory } from "@/features/traffic/data/demo-data";
+import {
+  getScenarioHistory,
+  runScenarioWithBaseline,
+  type ScenarioHistoryItem,
+  type ScenarioInput,
+  type ScenarioOutput,
+} from "@/lib/api";
 
 const sg = { fontFamily: "var(--font-space-grotesk)" } as const;
 const mono = { fontFamily: "var(--font-roboto-mono)" } as const;
@@ -66,23 +71,60 @@ export function ScenarioTestingPage() {
   });
   const [result, setResult] = useState<ScenarioOutput | null>(null);
   const [baselineResult, setBaselineResult] = useState<ScenarioOutput | null>(null);
+  const [history, setHistory] = useState<ScenarioHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const payload = await getScenarioHistory();
+        setHistory(payload);
+      } catch {
+        setErrorMessage("Scenario history service is unavailable.");
+      }
+    })();
+  }, []);
 
   const handleRun = async () => {
     setLoading(true);
-    const [scenario, baseline] = await Promise.all([
-      runScenario(config),
-      runScenario({
-        trafficSurge: 0,
-        hasIncident: false,
-        weatherCondition: "clear",
-        timingStrategy: "fixed",
-        demandLevel: "normal",
-      }),
-    ]);
-    setResult(scenario);
-    setBaselineResult(baseline);
-    setLoading(false);
+    try {
+      const payload = await runScenarioWithBaseline(config);
+      setResult(payload.result);
+      setBaselineResult(payload.baseline);
+      const runLabel =
+        config.demandLevel === "low"
+          ? "Off-Peak Demand"
+          : config.demandLevel === "normal"
+            ? "Normal Demand"
+            : "Peak Demand";
+      const currentRun: ScenarioHistoryItem = {
+        id: `run-${Date.now()}`,
+        name: `${runLabel} (${config.timingStrategy})`,
+        timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+        avgDelay: payload.result.avgDelay,
+        throughput: payload.result.throughput,
+        congestionIndex: payload.result.congestionIndex,
+        travelTime: payload.result.travelTime,
+        recommendation: payload.result.recommendation,
+      };
+      const mergedHistory = [currentRun, ...payload.history]
+        .slice(0, 6)
+        .filter(
+          (item, idx, arr) =>
+            arr.findIndex((other) => other.id === item.id) === idx,
+        );
+      setHistory(mergedHistory);
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.message
+          ? error.message
+          : "Unable to run scenario simulation.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const comparisonData = result && baselineResult
@@ -236,6 +278,11 @@ export function ScenarioTestingPage() {
           </div>
         </div>
       </div>
+      {errorMessage && (
+        <div className="brutal-border bg-red-50 px-4 py-3 text-[10px] font-bold uppercase text-red-700" style={mono}>
+          {errorMessage}
+        </div>
+      )}
 
       {/* ── Results ───────────────────────────────────────────── */}
       {result && baselineResult && (
@@ -361,7 +408,7 @@ export function ScenarioTestingPage() {
       <div className="brutal-border bg-white p-6">
         <h3 className="text-lg font-black uppercase mb-6" style={sg}>Recent Scenarios</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {scenarioHistory.map((s) => (
+          {history.map((s) => (
             <div key={s.id} className="brutal-border p-4 border-dashed hover:bg-slate-50 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs font-black uppercase" style={sg}>{s.name}</h4>
@@ -378,6 +425,11 @@ export function ScenarioTestingPage() {
               </p>
             </div>
           ))}
+          {history.length === 0 && (
+            <div className="md:col-span-3 text-[10px] font-bold uppercase text-slate-500" style={mono}>
+              No scenario history available.
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

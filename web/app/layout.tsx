@@ -87,6 +87,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${instrumentSans.variable} ${sora.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${robotoMono.variable}`}
       >
         <div className="relative min-h-screen bg-white">

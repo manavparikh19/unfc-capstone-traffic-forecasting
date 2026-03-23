@@ -49,6 +49,8 @@ npm run dev
 
 The app runs without any external services. The default route planner uses local structured demo data and the contact form works without a CRM because it falls back to structured logging unless `CONTACT_WEBHOOK_URL` is configured.
 
+For live forecast inference, run the FastAPI service in `../api` and set `MODEL_SERVICE_URL` in `.env.local`.
+
 ## Quality commands
 
 ```bash
@@ -67,10 +69,15 @@ See `.env.example` for all supported variables.
 
 - `NEXT_PUBLIC_SITE_URL`: canonical URL for metadata and sitemap
 - `NEXT_PUBLIC_ENABLE_ANALYTICS`: toggles analytics hook-point logging
+- `NEXT_PUBLIC_USE_MOCK_DATA`: when `true`, client data calls stay on local mock payloads
+- `NEXT_PUBLIC_ALLOW_FALLBACK_ON_ERROR`: when `true`, failed API calls can use demo fallback data
 - `CONTACT_WEBHOOK_URL`: optional webhook for contact requests
 - `SENTRY_DSN`: optional error tracking DSN
 - `ROUTE_PROVIDER`: `demo` by default, future provider switch
 - `ROUTE_PROVIDER_TOKEN`: token for a future live route provider
+- `MODEL_SERVICE_URL`: optional FastAPI forecast model service URL
+- `MODEL_SERVICE_TIMEOUT_MS`: timeout for model service calls
+- `FORECAST_DEFAULT_LOCATION_ID`: default location id for served forecast snapshots
 - `CONTACT_RATE_LIMIT_MAX`: per-minute contact request cap
 - `ROUTE_PLAN_RATE_LIMIT_MAX`: per-minute route-plan API cap
 
