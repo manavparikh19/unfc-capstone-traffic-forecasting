@@ -1,0 +1,13 @@
+scenario,metric,baseline_metric,optimized_metric,absolute_difference,percentage_improvement
+Off-Peak Demand,delay,14.632867132867133,13.451579580419576,1.1812875524475572,8.072837275985696
+Off-Peak Demand,throughput,780.0,780.0,0.0,0.0
+Off-Peak Demand,queue_pressure,0.0,0.0,0.0,0.0
+Off-Peak Demand,demand_served_per_cycle,19.5,19.5,0.0,0.0
+Normal Demand,delay,18.452662721893493,16.44945784615384,2.0032048757396517,10.8559122655123
+Normal Demand,throughput,1300.0,1300.0,0.0,0.0
+Normal Demand,queue_pressure,0.0,0.0,0.0,0.0
+Normal Demand,demand_served_per_cycle,32.5,32.5,0.0,0.0
+Peak Demand,delay,34.46503496503496,22.30230870336825,12.162726261666709,35.290044748267015
+Peak Demand,throughput,1600.0,1800.0,200.0,12.5
+Peak Demand,queue_pressure,220.0,19.999999999999886,200.0000000000001,90.90909090909096
+Peak Demand,demand_served_per_cycle,40.0,45.0,5.0,12.5

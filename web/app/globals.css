@@ -1,0 +1,134 @@
+@import "tailwindcss";
+@import "../styles/design-tokens.css";
+
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #000000;
+  --accent: #ff3e00;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: var(--foreground);
+  font-family: var(--font-space-grotesk), var(--font-instrument-sans), sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Dot-grid blueprint background */
+.site-grid {
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-color: transparent;
+  opacity: 0.07;
+}
+
+/* Neobrutalist utilities */
+.brutal-border {
+  border: 3px solid #000000;
+}
+
+.brutal-shadow {
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.brutal-shadow-sm {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.bg-accent {
+  background-color: var(--accent) !important;
+}
+
+.text-accent {
+  color: var(--accent) !important;
+}
+
+.brutal-btn {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.brutal-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0px 0px #000000;
+}
+
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+@layer base {
+  * {
+    @apply border-black/10;
+  }
+  body {
+    @apply bg-white text-black antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv03";
+    scroll-behavior: smooth;
+  }
+
+  /* --- Neobrutalist Scrollbar --- */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fff;
+    border-left: 3px solid #000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #000;
+    border: 2px solid #fff;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ff3e00;
+  }
+
+  /* --- Custom Selection --- */
+  ::selection {
+    background: #ff3e00;
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,4 @@
+scenario,delay_baseline,delay_optimized,throughput_baseline,throughput_optimized,queue_baseline,queue_optimized,demand_served_baseline,demand_served_optimized,queue_ratio_baseline,queue_ratio_optimized,vc_ratio_baseline,vc_ratio_optimized,delay_reduction_percent,throughput_increase_percent,queue_pressure_reduction_percent,demand_served_increase_percent,queue_ratio_reduction_percent
+Off-Peak Demand,14.632867132867132,13.451579580419576,780.0,780.0,0.0,0.0,19.5,19.5,0.0,0.0,0.4333333333333333,0.4333333333333333,8.072837275985684,0.0,,0.0,
+Normal Demand,18.452662721893493,16.44945784615384,1300.0,1300.0,0.0,0.0,32.5,32.5,0.0,0.0,0.7222222222222222,0.7222222222222222,10.8559122655123,0.0,,0.0,
+Peak Demand,34.46503496503496,22.30230870336825,1600.0,1800.0,220.0,19.999999999999886,40.0,45.0,0.1208791208791208,0.0109890109890109,1.011111111111111,1.011111111111111,35.290044748267015,12.5,90.90909090909096,12.5,90.90909090909098
