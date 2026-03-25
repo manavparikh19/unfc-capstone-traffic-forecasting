@@ -13,15 +13,18 @@ The project integrates data preprocessing, congestion metric design, forecasting
 ## Academic Context / Team
 
 ### Program Context
+
 Master of Data Analytics, University of Niagara Falls (UNF)
 
 ### Team Members
+
 - Manav Parikh
 - Dhyey Modi
 - Rudra Patel
 - Arpit Desai
 
 ### Supervisor
+
 Dr. Hany Osman  
 hany.osman@unfc.ca
 
@@ -30,6 +33,7 @@ hany.osman@unfc.ca
 Traffic count records and traffic signal infrastructure data exist in separate sources and must be connected before operational analysis is possible.
 
 This project builds a reproducible analytics system that:
+
 - prepares raw traffic data into modeling-ready datasets,
 - defines and computes traffic congestion and signal performance metrics,
 - forecasts near-term traffic volume,
@@ -77,29 +81,31 @@ Raw Data
 
 ### Notebook-to-Pipeline Mapping (All Notebooks)
 
-| Notebook | Role in Pipeline |
-|---|---|
-| `00_raw_preprocessing.ipynb` | Cleans raw 15-minute records and creates hourly/daily processed datasets. |
-| `01_define_congestion_metric.ipynb` | Defines congestion-oriented metrics used for traffic condition interpretation. |
-| `02_dataset_validation.ipynb` | Validates temporal coverage, spatial coverage, completeness, and data suitability. |
-| `03_eda_traffic_data.ipynb` | Explores temporal/spatial traffic demand patterns and peak behavior. |
-| `04_feature_engineering.ipynb` | Builds model-ready temporal, demand, and signal-mapping features. |
-| `05_signal_performance_metrics.ipynb` | Derives signal performance indicators for operational analysis. |
-| `06_baseline_signal_timing.ipynb` | Establishes baseline fixed-time timing assumptions and benchmark metrics. |
-| `07_traffic_congestion_volume_forecasting.ipynb` | Trains and compares next-hour forecasting models. |
-| `08_signal_timing_strategy_comparison.ipynb` | Compares baseline and optimized timing strategies under forecast-informed demand. |
-| `09_external_factors_integration.ipynb` | Integrates hourly weather and temporal external factors with traffic data. |
+| Notebook                                         | Role in Pipeline                                                                   |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `00_raw_preprocessing.ipynb`                     | Cleans raw 15-minute records and creates hourly/daily processed datasets.          |
+| `01_define_congestion_metric.ipynb`              | Defines congestion-oriented metrics used for traffic condition interpretation.     |
+| `02_dataset_validation.ipynb`                    | Validates temporal coverage, spatial coverage, completeness, and data suitability. |
+| `03_eda_traffic_data.ipynb`                      | Explores temporal/spatial traffic demand patterns and peak behavior.               |
+| `04_feature_engineering.ipynb`                   | Builds model-ready temporal, demand, and signal-mapping features.                  |
+| `05_signal_performance_metrics.ipynb`            | Derives signal performance indicators for operational analysis.                    |
+| `06_baseline_signal_timing.ipynb`                | Establishes baseline fixed-time timing assumptions and benchmark metrics.          |
+| `07_traffic_congestion_volume_forecasting.ipynb` | Trains and compares next-hour forecasting models.                                  |
+| `08_signal_timing_strategy_comparison.ipynb`     | Compares baseline and optimized timing strategies under forecast-informed demand.  |
+| `09_external_factors_integration.ipynb`          | Integrates hourly weather and temporal external factors with traffic data.         |
 | `10_traffic_flow_optimization_formulation.ipynb` | Documents objective, decision variables, and constraints for optimization framing. |
-| `11_intersection_traffic_flow_simulation.ipynb` | Simulates intersection outcomes under baseline vs optimized timing scenarios. |
-| `12_signal_timing_impact_evaluation.ipynb` | Quantifies before-vs-after operational impact and exports evaluation outputs. |
+| `11_intersection_traffic_flow_simulation.ipynb`  | Simulates intersection outcomes under baseline vs optimized timing scenarios.      |
+| `12_signal_timing_impact_evaluation.ipynb`       | Quantifies before-vs-after operational impact and exports evaluation outputs.      |
 
 ## Data Sources
 
 ### City of Toronto Open Data Portal
+
 - Traffic Volume — Speed Volume Classification (SVC)
 - Traffic Signals dataset
 
 ### Meteostat Weather Data
+
 Hourly weather observations used to enrich traffic demand modeling with external environmental factors.
 
 These datasets are used for academic research purposes.
@@ -107,6 +113,7 @@ These datasets are used for academic research purposes.
 ## Notebook Execution Order
 
 ### Core Pipeline Notebooks
+
 Execute in this order for the full end-to-end workflow:
 
 1. `notebooks/00_raw_preprocessing.ipynb`
@@ -123,6 +130,7 @@ Execute in this order for the full end-to-end workflow:
 12. `notebooks/12_signal_timing_impact_evaluation.ipynb`
 
 ### Supporting / Auxiliary Notebooks
+
 - `notebooks/02_dataset_validation.ipynb` (data quality and suitability validation)
 
 ## Forecasting
@@ -134,16 +142,18 @@ The forecasting stage predicts next-hour traffic volume and compares multiple mo
 Forecast outputs are used directly in downstream signal timing strategy comparison.
 
 ![Forecast model comparison](docs/assets/forecast_model_comparison.png)
-*Model comparison chart used to evaluate forecasting performance (RMSE and MAE).*
+_Model comparison chart used to evaluate forecasting performance (RMSE and MAE)._
 
 ## Optimization
 
 ### Baseline Strategy
+
 `notebooks/06_baseline_signal_timing.ipynb`
 
 Defines a fixed-time benchmark strategy with explicit cycle and green allocation assumptions for comparative analysis.
 
 ### Optimization Formulation
+
 `notebooks/10_traffic_flow_optimization_formulation.ipynb`
 
 A simplified traffic signal optimization framework is specified with:
@@ -155,9 +165,11 @@ A simplified traffic signal optimization framework is specified with:
 Interpretation remains operationally grounded: optimization redistributes available green time; it does not create new intersection capacity.
 
 ### Strategy Comparison
+
 `notebooks/08_signal_timing_strategy_comparison.ipynb`
 
 Compares baseline and optimized timing using forecast-informed demand, including:
+
 - Webster-style delay estimation,
 - throughput,
 - queue pressure,
@@ -165,7 +177,7 @@ Compares baseline and optimized timing using forecast-informed demand, including
 - location-level comparison summaries.
 
 ![Baseline vs optimized strategy comparison](docs/assets/strategy_delay_comparison.png)
-*Forecast-informed strategy comparison highlighting delay differences under baseline and optimized timing.*
+_Forecast-informed strategy comparison highlighting delay differences under baseline and optimized timing._
 
 ## Simulation
 
@@ -174,12 +186,14 @@ Compares baseline and optimized timing using forecast-informed demand, including
 Evaluates intersection behavior under multiple demand scenarios (Off-Peak, Normal, Peak) for baseline and optimized signal timing.
 
 ### Intersection Setup
+
 - Two-phase signalized intersection:
   - Phase 1: North-South traffic
   - Phase 2: East-West traffic
 - Cycle length held constant across strategies.
 
 ### Performance Metrics
+
 - Average Delay (sec/veh)
 - Throughput (veh/hr)
 - Queue Pressure (Demand - Capacity)
@@ -188,16 +202,18 @@ Evaluates intersection behavior under multiple demand scenarios (Off-Peak, Norma
 - Volume-to-Capacity Ratio (V/C)
 
 ![Traffic demand pattern snapshot](docs/assets/eda_hourly_peak_patterns.png)
-*Traffic demand context used to define simulation scenarios.*
+_Traffic demand context used to define simulation scenarios._
 
 ## Evaluation / Results
 
 ### Final Impact Evaluation
+
 `notebooks/12_signal_timing_impact_evaluation.ipynb`
 
 This stage converts simulation outputs into before-vs-after impact metrics for baseline and optimized timing.
 
 Saved outputs:
+
 - `data/processed/signal_timing_impact_summary.csv`
 - `data/processed/signal_timing_headline_metrics.csv`
 - `data/processed/signal_timing_congestion_level_summary.csv`
@@ -205,33 +221,34 @@ Saved outputs:
 
 ### Headline Average Results Across Scenarios
 
-| Metric | Baseline | Optimized | Change |
-|---|---:|---:|---:|
-| Delay | 22.52 sec/veh | 17.40 sec/veh | 18.07% reduction |
-| Throughput | 1226.67 veh/hr | 1293.33 veh/hr | 4.17% increase |
-| Queue Pressure | 73.33 veh/hr | 6.67 veh/hr | 90.91% reduction |
-| Demand Served per Cycle | 30.67 veh/cycle | 32.33 veh/cycle | 4.17% increase |
+| Metric                  |        Baseline |       Optimized |           Change |
+| ----------------------- | --------------: | --------------: | ---------------: |
+| Delay                   |   22.52 sec/veh |   17.40 sec/veh | 18.07% reduction |
+| Throughput              |  1226.67 veh/hr |  1293.33 veh/hr |   4.17% increase |
+| Queue Pressure          |    73.33 veh/hr |     6.67 veh/hr | 90.91% reduction |
+| Demand Served per Cycle | 30.67 veh/cycle | 32.33 veh/cycle |   4.17% increase |
 
 Interpretation summary:
+
 - Largest benefits occur under peak/congested conditions.
 - Lower-demand scenarios show smaller gains because operations are already below capacity.
 - Observed changes come from better green-time redistribution within fixed capacity.
 
 ![Impact evaluation: delay by scenario](docs/assets/impact_delay_comparison.png)
-*Impact visualization showing baseline vs optimized delay across demand scenarios.*
+_Impact visualization showing baseline vs optimized delay across demand scenarios._
 
 ![Impact evaluation: change by scenario](docs/assets/impact_improvement_by_scenario.png)
-*Scenario-level percentage change view for delay reduction, throughput increase, and queue-pressure reduction.*
+_Scenario-level percentage change view for delay reduction, throughput increase, and queue-pressure reduction._
 
 ## Example Performance Changes
 
 Peak demand simulation results:
 
-| Metric | Baseline | Optimized | Change |
-|---|---:|---:|---:|
-| Average Delay | 34.47 sec/veh | 22.30 sec/veh | 35% reduction |
-| Throughput | 1600 veh/hr | 1800 veh/hr | 12.5% increase |
-| Queue Pressure | 220 veh/hr | 20 veh/hr | 90% reduction |
+| Metric         |      Baseline |     Optimized |         Change |
+| -------------- | ------------: | ------------: | -------------: |
+| Average Delay  | 34.47 sec/veh | 22.30 sec/veh |  35% reduction |
+| Throughput     |   1600 veh/hr |   1800 veh/hr | 12.5% increase |
+| Queue Pressure |    220 veh/hr |     20 veh/hr |  90% reduction |
 
 ## External Factors Integration
 
@@ -240,6 +257,7 @@ Peak demand simulation results:
 Integrates hourly Meteostat weather and temporal indicators into the traffic dataset.
 
 Included variables:
+
 - temperature
 - precipitation
 - humidity
@@ -256,12 +274,78 @@ Reported merge coverage: ~99.65%.
 - Demonstrates how measurable traffic performance gains can be achieved through control strategy refinement rather than infrastructure expansion.
 - Offers a transparent analytics pipeline that can be adapted for smart-city corridor screening and staged signal optimization studies.
 
+## Web App and API
+
+In addition to the notebook-based research pipeline, this repository includes an application layer for interactive exploration and live inference:
+
+- `web/`: Next.js application (dashboard, forecasting, optimization views, hotspots, and route-planning experience).
+- `api/`: FastAPI model service for live forecasting endpoints consumed by the web app.
+
+### Local Run (Application Layer)
+
+Run the web app:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Run the model API:
+
+```bash
+cd api
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+
+Integration notes:
+
+- Web app default URL: `http://localhost:3000`
+- Model API default URL: `http://localhost:8000`
+- To enable live forecast inference in `web`, set `MODEL_SERVICE_URL` in `web/.env.local` (for example `MODEL_SERVICE_URL=http://localhost:8000`).
+
+Detailed docs:
+
+- `web/README.md`
+- `api/README.md`
+
+### Web Application Screenshots
+
+![Web Home](docs/assets/web/web-home.png)
+_Landing page introducing the smart-city traffic analytics product experience._
+
+![Web Dashboard](docs/assets/web/web-dashbaord.png)
+_Traffic intelligence dashboard with KPI summaries and congestion trends._
+
+![Web Forecasting](docs/assets/web/web-forecasting.png)
+_Forecasting workflow showing demand predictions and comparative model behavior._
+
+![Web Forecasting (Alternate View)](docs/assets/web/web-forecasting-2.png)
+_Additional forecasting view highlighting scenario-specific forecast outputs._
+
+![Web Signal Optimization](docs/assets/web/web-signal-optimization.png)
+_Baseline versus optimized timing strategy comparison interface._
+
+![Web Scenario Testing](docs/assets/web/web-scenario-testing.png)
+_Route planning and scenario testing interaction for what-if traffic analysis._
+
+![Web Scenario Testing (Alternate View)](docs/assets/web/web-scenario-testing-2.png)
+_Additional scenario-testing result state for route-level evaluation._
+
+![Web Methodology](docs/assets/web/web-methodology.png)
+_Methodology page connecting product features to the underlying research pipeline._
+
 ## Environment Setup
 
 ### Recommended Python
+
 - Python 3.11 (TensorFlow compatible)
 
 ### Required Libraries
+
 - pandas
 - numpy
 - matplotlib
@@ -272,6 +356,7 @@ Reported merge coverage: ~99.65%.
 - geopy
 
 ### Installation
+
 ```bash
 pip install pandas numpy matplotlib seaborn scikit-learn tensorflow meteostat geopy
 ```
@@ -279,7 +364,7 @@ pip install pandas numpy matplotlib seaborn scikit-learn tensorflow meteostat ge
 ## References
 
 - Highway Capacity Manual (HCM), Transportation Research Board
-- Webster, F. V. (1958). *Traffic Signal Settings*
+- Webster, F. V. (1958). _Traffic Signal Settings_
 - City of Toronto Open Data Portal
 - Meteostat Weather Data API
 

@@ -15,6 +15,32 @@ Traffic Congestion is a production-oriented Next.js smart-city SaaS demo for tra
 - SEO metadata, sitemap, robots, Open Graph image, icon routes, error boundaries, loading states, and 404 handling
 - Vitest, React Testing Library, Playwright, ESLint, Prettier, Husky, lint-staged, CI workflow, and Dockerfile
 
+## Screenshots
+
+![Web Home](../docs/assets/web/web-home.png)
+*Landing page introducing the smart-city traffic analytics product experience.*
+
+![Web Dashboard](../docs/assets/web/web-dashbaord.png)
+*Traffic intelligence dashboard with KPI summaries and congestion trends.*
+
+![Web Forecasting](../docs/assets/web/web-forecasting.png)
+*Forecasting workflow showing demand predictions and comparative model behavior.*
+
+![Web Forecasting (Alternate View)](../docs/assets/web/web-forecasting-2.png)
+*Additional forecasting view highlighting scenario-specific forecast outputs.*
+
+![Web Signal Optimization](../docs/assets/web/web-signal-optimization.png)
+*Baseline versus optimized timing strategy comparison interface.*
+
+![Web Scenario Testing](../docs/assets/web/web-scenario-testing.png)
+*Route planning and scenario testing interaction for what-if traffic analysis.*
+
+![Web Scenario Testing (Alternate View)](../docs/assets/web/web-scenario-testing-2.png)
+*Additional scenario-testing result state for route-level evaluation.*
+
+![Web Methodology](../docs/assets/web/web-methodology.png)
+*Methodology page connecting product features to the underlying research pipeline.*
+
 ## Tech stack
 
 - Next.js 16 App Router
