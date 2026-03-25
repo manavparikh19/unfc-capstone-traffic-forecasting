@@ -77,6 +77,59 @@ The app runs without any external services. The default route planner uses local
 
 For live forecast inference, run the FastAPI service in `../api` and set `MODEL_SERVICE_URL` in `.env.local`.
 
+## Live Forecast Setup (Web + API)
+
+Use this when you want the Forecasting page to call the Python model service instead of static fallback data.
+
+1. Configure web environment:
+
+```bash
+cp .env.example .env.local
+```
+
+Set these values in `.env.local`:
+
+```env
+MODEL_SERVICE_URL=http://127.0.0.1:8000
+MODEL_SERVICE_TIMEOUT_MS=30000
+NEXT_PUBLIC_ALLOW_FALLBACK_ON_ERROR=true
+```
+
+2. Start API service (new terminal):
+
+```bash
+cd ../api
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
+
+3. Start web app (new terminal):
+
+```bash
+cd ../web
+npm install
+npm run dev
+```
+
+4. Validate connectivity:
+
+```bash
+curl http://127.0.0.1:8000/health
+curl "http://localhost:3000/api/forecast?locationId=10133019_NB&horizonHours=6"
+```
+
+## Troubleshooting
+
+- `next: command not found`:
+  run `npm install` in `web/` so `web/node_modules/.bin/next` exists.
+- `Unable to acquire lock at web/.next/dev/lock`:
+  another `next dev` process is running or crashed previously. Stop old processes and remove the lock:
+  `pkill -f "next dev" && rm -f .next/dev/lock`
+- Forecasting page shows backend unavailable:
+  confirm API is running on `127.0.0.1:8000`, `MODEL_SERVICE_URL` is set, and restart `npm run dev` after env changes.
+
 ## Quality commands
 
 ```bash

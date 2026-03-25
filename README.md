@@ -283,7 +283,22 @@ In addition to the notebook-based research pipeline, this repository includes an
 
 ### Local Run (Application Layer)
 
-Run the web app:
+1. Configure web environment:
+
+```bash
+cd web
+cp .env.example .env.local
+```
+
+Set these values in `web/.env.local`:
+
+```env
+MODEL_SERVICE_URL=http://127.0.0.1:8000
+MODEL_SERVICE_TIMEOUT_MS=30000
+NEXT_PUBLIC_ALLOW_FALLBACK_ON_ERROR=true
+```
+
+2. Run the web app:
 
 ```bash
 cd web
@@ -291,21 +306,28 @@ npm install
 npm run dev
 ```
 
-Run the model API:
+3. Run the model API (separate terminal):
 
 ```bash
 cd api
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
+
+4. Verify integration:
+
+```bash
+curl http://127.0.0.1:8000/health
+curl "http://localhost:3000/api/forecast?locationId=10133019_NB&horizonHours=6"
 ```
 
 Integration notes:
 
 - Web app default URL: `http://localhost:3000`
-- Model API default URL: `http://localhost:8000`
-- To enable live forecast inference in `web`, set `MODEL_SERVICE_URL` in `web/.env.local` (for example `MODEL_SERVICE_URL=http://localhost:8000`).
+- Model API default URL: `http://127.0.0.1:8000`
+- If you see `Unable to acquire lock at web/.next/dev/lock`, stop old Next.js processes and remove the lock: `pkill -f "next dev" && rm -f web/.next/dev/lock`.
 
 Detailed docs:
 

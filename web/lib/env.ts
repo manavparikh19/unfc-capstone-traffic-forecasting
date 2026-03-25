@@ -14,7 +14,7 @@ const serverEnvSchema = z.object({
   ROUTE_PROVIDER: z.enum(["demo", "mapbox"]).default("demo"),
   ROUTE_PROVIDER_TOKEN: z.string().optional().or(z.literal("")),
   MODEL_SERVICE_URL: z.string().url().optional().or(z.literal("")),
-  MODEL_SERVICE_TIMEOUT_MS: z.coerce.number().int().positive().default(3500),
+  MODEL_SERVICE_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
   FORECAST_DEFAULT_LOCATION_ID: z.string().default("10133019_NB"),
   CONTACT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(6),
   ROUTE_PLAN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(20),

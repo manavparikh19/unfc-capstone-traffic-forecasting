@@ -21,7 +21,7 @@ async function getServedForecast(
   }
 
   const controller = new AbortController();
-  const timeoutMs = Math.max(env.MODEL_SERVICE_TIMEOUT_MS, 15000);
+  const timeoutMs = Math.max(env.MODEL_SERVICE_TIMEOUT_MS, 10000);
   const timeout = setTimeout(
     () => controller.abort(),
     timeoutMs,
@@ -92,13 +92,30 @@ export async function GET(request: Request) {
 
   try {
     if (env.MODEL_SERVICE_URL) {
-      const served = await getServedForecast(
-        locationId,
-        horizonHours,
-        modelName,
-        startTimestamp,
-      );
-      return NextResponse.json(served);
+      try {
+        const served = await getServedForecast(
+          locationId,
+          horizonHours,
+          modelName,
+          startTimestamp,
+        );
+        return NextResponse.json(served);
+      } catch (error) {
+        const fallback = await getForecastApiPayload();
+        const reason =
+          error instanceof Error && error.message
+            ? error.message
+            : "Unknown model service error";
+        return NextResponse.json({
+          ...fallback,
+          meta: {
+            location_id: locationId,
+            horizon_hours: horizonHours,
+            model_name: modelName ?? fallback.bestModel?.name,
+            fallback_reason: reason,
+          },
+        });
+      }
     }
 
     const payload = await getForecastApiPayload();
