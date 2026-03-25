@@ -1,0 +1,21 @@
+@theme {
+  --font-sans: var(--font-instrument-sans);
+  --font-display: var(--font-sora);
+  --font-mono: var(--font-ibm-plex-mono);
+
+  --color-ink-950: #07111f;
+  --color-ink-900: #0d1728;
+  --color-ink-800: #152235;
+  --color-ink-700: #20334e;
+  --color-mist-50: #f5f8fc;
+  --color-mist-100: #edf3f8;
+  --color-mist-200: #dbe6f0;
+  --color-mist-300: #c5d5e4;
+  --color-cyan-300: #70e1ff;
+  --color-cyan-400: #39caef;
+  --color-cyan-500: #12aacd;
+  --color-teal-400: #43d0bb;
+  --color-lime-300: #c5f36b;
+  --color-amber-300: #ffc975;
+  --color-rose-300: #ff9f96;
+}
