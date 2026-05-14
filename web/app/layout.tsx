@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Instrument_Sans, Roboto_Mono, Sora, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 
 import { AnalyticsBridge } from "@/components/site/analytics-bridge";
@@ -9,34 +8,6 @@ import { env } from "@/lib/env";
 import { siteConfig } from "@/lib/site-config";
 
 import "./globals.css";
-
-const instrumentSans = Instrument_Sans({
-  variable: "--font-instrument-sans",
-  subsets: ["latin"],
-});
-
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
@@ -88,7 +59,6 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${instrumentSans.variable} ${sora.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} ${robotoMono.variable}`}
       >
         <div className="relative min-h-screen bg-white">
           <div className="site-grid pointer-events-none absolute inset-0" />

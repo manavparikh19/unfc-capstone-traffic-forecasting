@@ -6,6 +6,11 @@
   --background: #ffffff;
   --foreground: #000000;
   --accent: #ff3e00;
+  --font-instrument-sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  --font-sora: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  --font-ibm-plex-mono: "SFMono-Regular", "Cascadia Code", "Fira Code", Consolas, monospace;
+  --font-space-grotesk: "Avenir Next Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --font-roboto-mono: "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
 }
 
 * {
