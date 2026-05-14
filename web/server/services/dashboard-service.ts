@@ -4,11 +4,8 @@ import type { DashboardSummary } from "@/lib/api";
 import type { CityArea } from "@/lib/site-config";
 import { cityFocusAreas } from "@/lib/site-config";
 import type { DashboardAreaMetrics } from "@/features/traffic/data/demo-data";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
-
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
 
 function classifyCongestion(index: number): DashboardAreaMetrics["classification"] {
   if (index >= 75) return "Severe";
@@ -50,11 +47,11 @@ async function loadDashboardPayload(
 ): Promise<DashboardSummary> {
   const [flowRows, impactRows, headlineRows, forecastRows, detailedRows] =
     await Promise.all([
-      readCsvFile(path.join(getDataRoot(), "traffic_flow_metrics_2015_2019.csv")),
-      readCsvFile(path.join(getDataRoot(), "signal_timing_impact_summary.csv")),
-      readCsvFile(path.join(getDataRoot(), "signal_timing_headline_metrics.csv")),
-      readCsvFile(path.join(getDataRoot(), "traffic_demand_forecasts.csv")),
-      readCsvFile(path.join(getDataRoot(), "signal_timing_strategy_detailed_results.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "traffic_flow_metrics_2015_2019.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_impact_summary.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_headline_metrics.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "traffic_demand_forecasts.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_strategy_detailed_results.csv")),
     ]);
   const filteredFlowRows =
     locationId && locationId !== "ALL"

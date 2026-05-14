@@ -3,6 +3,7 @@ import path from "node:path";
 import type { CityArea } from "@/lib/site-config";
 import { cityFocusAreas } from "@/lib/site-config";
 import type { Hotspot } from "@/features/traffic/data/demo-data";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
 
 type HotspotPayload = {
@@ -11,10 +12,6 @@ type HotspotPayload = {
   highCount: number;
   avgSeverity: number;
 };
-
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
 
 function rankSeverity(index: number, total: number): Hotspot["severity"] {
   if (index < Math.max(2, Math.round(total * 0.2))) {
@@ -44,7 +41,7 @@ function coordinateFromIndex(index: number) {
 
 async function loadHotspotPayload(): Promise<HotspotPayload> {
   const rows = await readCsvFile(
-    path.join(getDataRoot(), "location_signal_timing_improvement.csv"),
+    path.join(getProcessedDataRoot(), "location_signal_timing_improvement.csv"),
   );
 
   const ranked = rows

@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import type { ScenarioInput, ScenarioOutput } from "@/lib/api";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
 
 type ScenarioHistoryItem = {
@@ -19,10 +20,6 @@ type ScenarioResponse = {
   baseline: ScenarioOutput;
   history: ScenarioHistoryItem[];
 };
-
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
 
 function demandScenarioName(level: ScenarioInput["demandLevel"]) {
   if (level === "low") return "Off-Peak Demand";
@@ -107,7 +104,7 @@ function toScenarioOutput(
 }
 
 async function loadImpactRows() {
-  return readCsvFile(path.join(getDataRoot(), "signal_timing_impact_summary.csv"));
+  return readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_impact_summary.csv"));
 }
 
 export async function getScenarioHistory(limit = 6): Promise<ScenarioHistoryItem[]> {
@@ -210,4 +207,3 @@ export async function simulateScenario(input: ScenarioInput): Promise<ScenarioRe
 
   return { result, baseline, history };
 }
-

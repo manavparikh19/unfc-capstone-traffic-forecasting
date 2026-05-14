@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import { getProcessedDataRoot, getRawTrafficDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
 
 type MethodologyMetric = {
@@ -25,10 +26,6 @@ export type MethodologySummary = {
   models: MethodologyModel[];
 };
 
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
-
 function formatCompact(n: number) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
@@ -51,10 +48,10 @@ function inferResolutionMinutes(timestamps: Date[]) {
 export async function getMethodologySummary(): Promise<MethodologySummary> {
   const [rawTrafficRowsRaw, modelRowsRaw, forecastRowsRaw, impactRowsRaw] =
     await Promise.all([
-      readCsvFile(path.resolve(process.cwd(), "..", "data", "raw", "traffic", "svc_raw_data_volume_2015_2019.csv")),
-      readCsvFile(path.join(getDataRoot(), "forecast_model_results.csv")),
-      readCsvFile(path.join(getDataRoot(), "traffic_demand_forecasts.csv")),
-      readCsvFile(path.join(getDataRoot(), "signal_timing_impact_summary.csv")),
+      readCsvFile(path.join(getRawTrafficDataRoot(), "svc_raw_data_volume_2015_2019.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "forecast_model_results.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "traffic_demand_forecasts.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_impact_summary.csv")),
     ]);
 
   const rawTrafficRows = rawTrafficRowsRaw.filter(

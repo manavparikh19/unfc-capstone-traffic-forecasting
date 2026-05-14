@@ -1,11 +1,8 @@
 import path from "node:path";
 
 import type { SignalOptResponse } from "@/lib/api";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
-
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
 
 function formatHourLabel(hour: number) {
   return `${String(hour).padStart(2, "0")}:00`;
@@ -242,8 +239,8 @@ export async function getOptimizationApiPayload(
   peakWindow: "all" | "am" | "pm" | "offpeak" = "all",
 ) {
   const [detailedRows, flowRows] = await Promise.all([
-    readCsvFile(path.join(getDataRoot(), "signal_timing_strategy_detailed_results.csv")),
-    readCsvFile(path.join(getDataRoot(), "traffic_flow_metrics_2015_2019.csv")),
+    readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_strategy_detailed_results.csv")),
+    readCsvFile(path.join(getProcessedDataRoot(), "traffic_flow_metrics_2015_2019.csv")),
   ]);
 
   const locationNameById = new Map<string, string>();

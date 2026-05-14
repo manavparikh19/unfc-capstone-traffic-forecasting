@@ -6,6 +6,7 @@ import {
   modelComparisonMonthly,
   type FeatureImportance,
 } from "@/features/traffic/data/demo-data";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 
 type CsvRow = Record<string, string>;
 
@@ -99,10 +100,6 @@ function padHour(hour: number) {
   return `${String(hour).padStart(2, "0")}:00`;
 }
 
-function getDataRoot() {
-  return path.resolve(process.cwd(), "..", "data", "processed");
-}
-
 function normalizeModelSummary(name: string) {
   if (name.toLowerCase().includes("random forest")) {
     return "Best-performing model in the current benchmark export.";
@@ -142,7 +139,7 @@ function buildWeeklyTrend(buckets: Map<number, WeekBucket>) {
 }
 
 async function loadForecastPayload(): Promise<ForecastApiResponse> {
-  const dataRoot = getDataRoot();
+  const dataRoot = getProcessedDataRoot();
   const [modelsRaw, forecastsRaw] = await Promise.all([
     fs.readFile(path.join(dataRoot, "forecast_model_results.csv"), "utf8"),
     fs.readFile(path.join(dataRoot, "traffic_demand_forecasts.csv"), "utf8"),
@@ -261,7 +258,7 @@ export async function getForecastLocationOptions() {
     return locationCache;
   }
 
-  const dataRoot = getDataRoot();
+  const dataRoot = getProcessedDataRoot();
   const [flowRaw, forecastRaw] = await Promise.all([
     fs.readFile(path.join(dataRoot, "traffic_flow_metrics_2015_2019.csv"), "utf8"),
     fs.readFile(path.join(dataRoot, "traffic_demand_forecasts.csv"), "utf8"),
