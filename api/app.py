@@ -50,11 +50,9 @@ def startup_event() -> None:
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    artifacts = service._ensure_loaded()
     return {
         "status": "ok",
-        "model": artifacts.best_model["name"],
-        "trained_rows": artifacts.trained_rows,
+        "model_loaded": service.artifacts is not None,
         "data_root": str(DATA_ROOT),
     }
 

@@ -11,7 +11,6 @@ from sklearn.ensemble import (
     HistGradientBoostingRegressor,
     RandomForestRegressor,
 )
-from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
@@ -79,7 +78,7 @@ class ForecastModelArtifacts:
 
 
 class ForecastModelService:
-    def __init__(self, data_root: Path, sample_limit: int = 120_000) -> None:
+    def __init__(self, data_root: Path, sample_limit: int = 20_000) -> None:
         self.data_root = data_root
         self.sample_limit = sample_limit
         self.artifacts: ForecastModelArtifacts | None = None
@@ -123,23 +122,6 @@ class ForecastModelService:
     ) -> list[dict[str, Any]]:
         estimator = bundle.estimator
         raw_importance: np.ndarray | None = None
-
-        try:
-            sample_n = min(len(X_test), 4000)
-            sampled = X_test.sample(n=sample_n, random_state=42) if len(X_test) > sample_n else X_test
-            sampled_y = y_test.loc[sampled.index]
-            perm = permutation_importance(
-                estimator,
-                sampled,
-                sampled_y,
-                n_repeats=5,
-                random_state=42,
-                scoring="neg_mean_absolute_error",
-                n_jobs=-1,
-            )
-            raw_importance = np.maximum(0.0, np.asarray(perm.importances_mean, dtype=float))
-        except Exception:
-            raw_importance = None
 
         if raw_importance is None and hasattr(estimator, "feature_importances_"):
             try:
@@ -248,20 +230,20 @@ class ForecastModelService:
             ModelBundle(
                 name="Random Forest",
                 estimator=RandomForestRegressor(
-                    n_estimators=220,
-                    max_depth=16,
+                    n_estimators=60,
+                    max_depth=12,
                     min_samples_leaf=2,
                     random_state=42,
-                    n_jobs=-1,
+                    n_jobs=1,
                 ),
                 summary="Live Random Forest model for production inference.",
             ),
             ModelBundle(
                 name="XGBoost",
                 estimator=HistGradientBoostingRegressor(
-                    max_depth=8,
+                    max_depth=6,
                     learning_rate=0.06,
-                    max_iter=320,
+                    max_iter=180,
                     random_state=42,
                 ),
                 summary="Gradient boosting proxy for XGBoost-like behavior.",
@@ -269,11 +251,11 @@ class ForecastModelService:
             ModelBundle(
                 name="TFT (Proxy structure)",
                 estimator=ExtraTreesRegressor(
-                    n_estimators=260,
-                    max_depth=20,
+                    n_estimators=80,
+                    max_depth=14,
                     min_samples_leaf=2,
                     random_state=42,
-                    n_jobs=-1,
+                    n_jobs=1,
                 ),
                 summary="Tree ensemble proxy for transformer-style benchmark slot.",
             ),
