@@ -44,7 +44,8 @@ class SnapshotRequest(BaseModel):
 
 @app.on_event("startup")
 def startup_event() -> None:
-    service.load()
+    # Defer model loading so the process can bind its port quickly in managed hosts.
+    pass
 
 
 @app.get("/health")
