@@ -1,7 +1,0 @@
-Metric,Value,Interpretation
-Peak vs Non-Peak difference,330.7031075727857,"Peak-hour demand is substantially higher, confirming that hourly temporal structure remains dominant."
-Rain vs No-Rain difference,-15.654246787619286,"Rain is associated with only a small demand difference relative to average hourly demand, so the effect appears modest."
-Weekend vs Weekday difference,-28.82842674760576,"Weekend demand is lower, indicating that calendar structure remains important alongside weather context."
-Temp correlation with traffic_demand,0.0568729897092423,"The linear relationship is weak, so temperature is best treated as contextual signal rather than a dominant predictor."
-Prcp correlation with traffic_demand,-0.01012139895525953,The linear association is weak and consistent with precipitation adding only modest explanatory value.
-Weather merge success rate (%),99.65097496250144,Hourly weather coverage is high enough for downstream feature-based modeling experiments.

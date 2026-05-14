@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { getProcessedDataRoot, getRawTrafficDataRoot } from "@/server/utils/data-root";
+import { getProcessedDataRoot } from "@/server/utils/data-root";
 import { readCsvFile, toNumber } from "@/server/utils/csv";
 
 type MethodologyMetric = {
@@ -32,30 +32,17 @@ function formatCompact(n: number) {
   return String(Math.round(n));
 }
 
-function inferResolutionMinutes(timestamps: Date[]) {
-  if (timestamps.length < 2) return 60;
-  const sorted = [...timestamps].sort((a, b) => a.getTime() - b.getTime());
-  const diffs: number[] = [];
-  for (let i = 1; i < sorted.length && diffs.length < 4000; i += 1) {
-    const diffMin = Math.round((sorted[i].getTime() - sorted[i - 1].getTime()) / 60_000);
-    if (diffMin > 0 && diffMin <= 24 * 60) diffs.push(diffMin);
-  }
-  if (diffs.length === 0) return 60;
-  diffs.sort((a, b) => a - b);
-  return diffs[Math.floor(diffs.length / 2)];
-}
-
 export async function getMethodologySummary(): Promise<MethodologySummary> {
-  const [rawTrafficRowsRaw, modelRowsRaw, forecastRowsRaw, impactRowsRaw] =
+  const [flowRowsRaw, modelRowsRaw, forecastRowsRaw, impactRowsRaw] =
     await Promise.all([
-      readCsvFile(path.join(getRawTrafficDataRoot(), "svc_raw_data_volume_2015_2019.csv")),
+      readCsvFile(path.join(getProcessedDataRoot(), "traffic_flow_metrics_2015_2019.csv")),
       readCsvFile(path.join(getProcessedDataRoot(), "forecast_model_results.csv")),
       readCsvFile(path.join(getProcessedDataRoot(), "traffic_demand_forecasts.csv")),
       readCsvFile(path.join(getProcessedDataRoot(), "signal_timing_impact_summary.csv")),
     ]);
 
-  const rawTrafficRows = rawTrafficRowsRaw.filter(
-    (row) => row.id && row.id !== "id",
+  const flowRows = flowRowsRaw.filter(
+    (row) => row.location_id && row.location_id !== "location_id",
   );
   const modelRows = modelRowsRaw.filter(
     (row) => row.Model && row.Model !== "Model",
@@ -72,15 +59,15 @@ export async function getMethodologySummary(): Promise<MethodologySummary> {
   );
 
   const intersections = new Set(
-    rawTrafficRows
-      .map((row) => (row.count_id || row.centreline_id || row.location_name || "").trim())
+    flowRows
+      .map((row) => (row.location_id || row.centreline_id || row.location_name || "").trim())
       .filter(Boolean),
   ).size;
 
   let minYear = Number.POSITIVE_INFINITY;
   let maxYear = Number.NEGATIVE_INFINITY;
-  for (const row of rawTrafficRows) {
-    const year = Number((row.time_start || "").slice(0, 4));
+  for (const row of flowRows) {
+    const year = Number(row.year);
     if (!Number.isFinite(year)) continue;
     if (year < minYear) minYear = year;
     if (year > maxYear) maxYear = year;
@@ -134,22 +121,12 @@ export async function getMethodologySummary(): Promise<MethodologySummary> {
   const delayReduction = toNumber(peakImpact?.delay_reduction_percent);
   const throughputImprovement = toNumber(peakImpact?.throughput_increase_percent);
 
-  const rawTs = rawTrafficRows
-    .slice(0, 12000)
-    .map((row) => new Date((row.time_start || "").replace(" ", "T")))
-    .filter((d) => Number.isFinite(d.getTime()));
-  const rawResolutionMin = inferResolutionMinutes(rawTs);
-  const rawResolution =
-    rawResolutionMin >= 60
-      ? `${Math.round(rawResolutionMin / 60)}-hour intervals`
-      : `${rawResolutionMin}-min intervals`;
-
   return {
     dataset: {
-      dataPoints: rawTrafficRows.length,
+      dataPoints: forecastRows.length,
       intersections,
       timeSpan,
-      resolution: rawResolution,
+      resolution: "1-hour intervals",
     },
     metrics: [
       {

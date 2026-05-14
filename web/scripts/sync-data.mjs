@@ -7,19 +7,24 @@ const __dirname = path.dirname(__filename);
 const webRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(webRoot, "..");
 
-const copies = [
-  {
-    from: path.join(repoRoot, "data", "processed"),
-    to: path.join(webRoot, "data", "processed"),
-  },
-  {
-    from: path.join(repoRoot, "data", "raw", "traffic"),
-    to: path.join(webRoot, "data", "raw", "traffic"),
-  },
+const processedFiles = [
+  "forecast_model_results.csv",
+  "traffic_demand_forecasts.csv",
+  "traffic_flow_metrics_2015_2019.csv",
+  "signal_timing_impact_summary.csv",
+  "signal_timing_headline_metrics.csv",
+  "signal_timing_strategy_detailed_results.csv",
+  "location_signal_timing_improvement.csv",
 ];
 
-for (const { from, to } of copies) {
-  fs.mkdirSync(path.dirname(to), { recursive: true });
-  fs.rmSync(to, { recursive: true, force: true });
-  fs.cpSync(from, to, { recursive: true });
+const processedTarget = path.join(webRoot, "data", "processed");
+
+fs.rmSync(path.join(webRoot, "data"), { recursive: true, force: true });
+fs.mkdirSync(processedTarget, { recursive: true });
+
+for (const filename of processedFiles) {
+  fs.copyFileSync(
+    path.join(repoRoot, "data", "processed", filename),
+    path.join(processedTarget, filename),
+  );
 }

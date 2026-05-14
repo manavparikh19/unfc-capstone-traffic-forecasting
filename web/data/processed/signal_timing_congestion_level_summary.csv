@@ -1,5 +1,0 @@
-traffic_level,baseline_delay_sec,optimized_delay_sec,baseline_queue_pressure,optimized_queue_pressure,baseline_throughput,optimized_throughput,delay_reduction_sec,queue_pressure_reduction,throughput_gain
-Low,22.768,22.768,0.0,0.0,176.984,176.984,0.0,0.0,0.0
-Moderate,29.38,29.38,0.0,0.0,543.26,543.26,0.0,0.0,0.0
-High,34.764,33.961,48.158,24.079,742.676,766.755,0.803,24.079,24.079
-Severe,35.0,27.23,501.542,268.437,750.0,983.105,7.77,233.105,233.105
